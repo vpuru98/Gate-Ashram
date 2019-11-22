@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/custom_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:layout_weight="1"
+        android:background="#d3d3d3"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackgroundBorderless"
+        app:cardCornerRadius="4dp"
+        app:cardElevation="@dimen/cardview_default_elevation">
+
+        <TextView
+            android:id="@+id/text_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fontFamily="@font/opensans"
+            android:gravity="center"
+            android:padding="32dp"
+            android:textColor="#000"
+            android:textSize="18sp"
+            android:textStyle="normal"
+            tools:text="Custom Practice" />
+    </androidx.cardview.widget.CardView>
+</LinearLayout>
