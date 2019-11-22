@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.gate.gateashram.Helpers.Helper;
 import com.gate.gateashram.Models.ListModelClass;
 import com.gate.gateashram.R;
 
@@ -32,7 +33,7 @@ public class GenericAdapter extends ArrayAdapter<ListModelClass> {
         ListModelClass listModelClass = mArrayList.get(position);
 
         TextView textView = (TextView) listItem.findViewById(R.id.text_view);
-        textView.setText(listModelClass.getmText());
+        textView.setText(Helper.reformatString(mArrayList.get(position).getmText()));
 
         return listItem;
     }

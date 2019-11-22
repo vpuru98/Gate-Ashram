@@ -13,8 +13,6 @@
         android:layout_margin="8dp"
         android:layout_weight="1"
         android:background="#d3d3d3"
-        android:clickable="true"
-        android:focusable="true"
         android:foreground="?android:attr/selectableItemBackgroundBorderless"
         app:cardCornerRadius="4dp"
         app:cardElevation="@dimen/cardview_default_elevation">

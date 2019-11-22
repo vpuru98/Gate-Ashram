@@ -21,7 +21,7 @@ import org.json.JSONException;
 
 public class MainActivity extends AppCompatActivity {
 
-    public final String mUrl = "http://192.168.43.102:3000";
+    public static final String mUrl = "http://192.168.43.102:3000";
     private final String LOG_TAG = "Main";
     private CardView mSubjectWise;
     private CardView mYearWise;
@@ -54,28 +54,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url = mUrl + "/CSE/subjects";
-
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
-            @Override
-            public void onResponse(JSONArray response) {
-                Log.e(LOG_TAG, "" + response.length());
-                for (int i = 0; i < response.length(); i++) {
-                    try {
-                        Log.e(LOG_TAG, response.getJSONObject(i).getString("subject") + " ");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e(LOG_TAG, "" + error.getMessage());
-            }
-        });
-
-        queue.add(jsonArrayRequest);
     }
 }
