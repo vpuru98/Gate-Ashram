@@ -2,9 +2,11 @@ package com.gate.gateashram.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -162,6 +164,20 @@ public class QuestionView extends AppCompatActivity {
                                 mAdapter = new OptionsAdapter(getApplicationContext(), mQuestions.get(mInd).getmOptions());
                                 mAdapter.notifyDataSetChanged();
                                 mListView.setAdapter(mAdapter);
+
+                                mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                        int correctAnswer = (int) ((mQuestions.get(mInd).getmAnswer().charAt(0))) - 65;
+                                        Log.e(LOG_TAG, correctAnswer+"");
+                                        if (correctAnswer == i)
+                                            view.setBackgroundColor(Color.parseColor("#32CD32"));
+                                        else {
+                                            view.setBackgroundColor(Color.parseColor("#FF9494"));
+                                            //findViewById((int)adapterView.getItemIdAtPosition(correctAnswer)).setBackgroundColor(Color.parseColor("#32CD32"));
+                                        }
+                                    }
+                                });
                             }
                         } catch (Exception e) {
                             Log.e(LOG_TAG, "" + e.getLocalizedMessage());
