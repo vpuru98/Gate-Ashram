@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimaryDark"
     tools:context=".Activities.QuestionView">
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/colorPrimaryDark" />
+        android:layout_height="match_parent" />
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/app_bar"
@@ -58,15 +59,90 @@
             app:cardElevation="@dimen/cardview_default_elevation">
 
             <TextView
-                android:id="@+id/text_view"
+                android:id="@+id/question_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/opensans"
                 android:gravity="center"
-                android:padding="32dp"
+                android:padding="16dp"
                 android:text="Custom Practice"
                 android:textColor="#000"
-                android:textSize="18sp"
+                android:textSize="14sp"
+                android:textStyle="normal" />
+        </androidx.cardview.widget.CardView>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/custom_card1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_margin="8dp"
+                android:background="#d3d3d3"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                app:cardCornerRadius="4dp"
+                app:cardElevation="@dimen/cardview_default_elevation">
+
+                <TextView
+                    android:id="@+id/topic_tags"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/opensans"
+                    android:padding="8dp"
+                    android:text="View Topic Tags"
+                    android:textColor="#a9a9a9"
+                    android:textSize="12sp"
+                    android:textStyle="normal" />
+            </androidx.cardview.widget.CardView>
+
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/custom_card2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_margin="8dp"
+                android:background="#d3d3d3"
+                android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                app:cardCornerRadius="4dp"
+                app:cardElevation="@dimen/cardview_default_elevation">
+
+                <TextView
+                    android:id="@+id/gate_year"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/opensans"
+                    android:padding="8dp"
+                    android:text="2018"
+                    android:textColor="#a9a9a9"
+                    android:textSize="12sp"
+                    android:textStyle="normal" />
+            </androidx.cardview.widget.CardView>
+        </RelativeLayout>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/custom_card3"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="8dp"
+            android:layout_weight="1"
+            android:background="#d3d3d3"
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            android:visibility="gone"
+            app:cardCornerRadius="4dp"
+            app:cardElevation="@dimen/cardview_default_elevation">
+
+            <ImageView
+                android:id="@+id/img"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:gravity="center_horizontal"
+                android:padding="8dp"
+                android:scaleType="fitXY"
                 android:textStyle="normal" />
         </androidx.cardview.widget.CardView>
 
@@ -76,6 +152,5 @@
             android:layout_height="wrap_content"></ListView>
 
     </LinearLayout>
-
 
 </RelativeLayout>
