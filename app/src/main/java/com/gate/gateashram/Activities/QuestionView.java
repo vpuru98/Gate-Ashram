@@ -129,6 +129,8 @@ public class QuestionView extends AppCompatActivity {
             public void onResponse(JSONArray response) {
                 mResponse = response;
                 int i = mInd;
+                mNext.setVisibility(View.VISIBLE);
+                mPrevious.setVisibility(View.VISIBLE);
                 extractResponse(mResponse);
             }
         }, new Response.ErrorListener() {
