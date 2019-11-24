@@ -54,6 +54,7 @@ public class QuestionView extends AppCompatActivity {
     private ProgressBar mProgress;
     private LinearLayout mLinearLayout;
     private RelativeLayout mErrorMessage;
+    private String mUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,7 @@ public class QuestionView extends AppCompatActivity {
         mProgress = findViewById(R.id.progress_circular);
         mLinearLayout = findViewById(R.id.ll);
         mErrorMessage = findViewById(R.id.error_message);
+        mUrl = getIntent().getStringExtra("Value");
 
         if (mInd == 0)
             mPrevious.setVisibility(View.GONE);
@@ -83,7 +85,6 @@ public class QuestionView extends AppCompatActivity {
             //do something
         } else {
             performNetworkRequest();
-
         }
 
         mNext.setOnClickListener(new View.OnClickListener() {
@@ -119,9 +120,7 @@ public class QuestionView extends AppCompatActivity {
     }
 
     void performNetworkRequest() {
-        String url = MainActivity.mUrl + "/" + getIntent().getStringExtra("Value") + "/practice";
-
-        Log.e(LOG_TAG, url);
+        String url = mUrl;
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
