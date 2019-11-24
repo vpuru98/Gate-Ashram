@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -52,6 +53,7 @@ public class QuestionView extends AppCompatActivity {
     private CardView mPrevious;
     private ProgressBar mProgress;
     private LinearLayout mLinearLayout;
+    private RelativeLayout mErrorMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +72,7 @@ public class QuestionView extends AppCompatActivity {
         mChecked = new HashSet<>();
         mProgress = findViewById(R.id.progress_circular);
         mLinearLayout = findViewById(R.id.ll);
+        mErrorMessage = findViewById(R.id.error_message);
 
         if (mInd == 0)
             mPrevious.setVisibility(View.GONE);
@@ -91,6 +94,8 @@ public class QuestionView extends AppCompatActivity {
                 mToolbarText.setText("Question " + (mInd + 1));
                 if (mInd == mResponse.length() - 1)
                     mNext.setVisibility(View.GONE);
+                mTopicTags.setText("View Topic Tags");
+                mListView.setEnabled(true);
                 extractResponse(mResponse);
             }
         });
@@ -104,6 +109,8 @@ public class QuestionView extends AppCompatActivity {
                 mToolbarText.setText("Question " + (mInd + 1));
                 if (mInd == 0)
                     mPrevious.setVisibility(View.GONE);
+                mTopicTags.setText("View Topic Tags");
+                mListView.setEnabled(true);
                 extractResponse(mResponse);
             }
         });
@@ -112,6 +119,8 @@ public class QuestionView extends AppCompatActivity {
 
     void performNetworkRequest() {
         String url = MainActivity.mUrl + "/" + getIntent().getStringExtra("Value") + "/practice";
+
+        Log.e(LOG_TAG, url);
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
@@ -125,6 +134,8 @@ public class QuestionView extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                mProgress.setVisibility(View.GONE);
+                mErrorMessage.setVisibility(View.VISIBLE);
                 Log.e(LOG_TAG, "error" + error.getMessage());
             }
         });
@@ -237,7 +248,8 @@ public class QuestionView extends AppCompatActivity {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                         int correctAnswer = (int) ((mQuestions.get(mInd).getmAnswer().charAt(0))) - 65;
-                        Log.e(LOG_TAG, correctAnswer + "");
+                        Log.e(LOG_TAG, mQuestions.get(mInd).getmAnswer() + " Correct Answer ");
+                        mListView.setEnabled(false);
                         if (correctAnswer == i)
                             view.setBackgroundColor(Color.parseColor("#32CD32"));
                         else {

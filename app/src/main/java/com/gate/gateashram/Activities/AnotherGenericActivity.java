@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -34,6 +35,7 @@ public class AnotherGenericActivity extends AppCompatActivity {
     private TextView mToolbarText;
     private final String LOG_TAG = "AnotherGenericActivity";
     private ProgressBar mProgressBar;
+    private RelativeLayout mErrorMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,7 @@ public class AnotherGenericActivity extends AppCompatActivity {
         mAdapter = new GenericAdapter(this, mListItems);
         mToolbarText = findViewById(R.id.toolbar_text);
         mProgressBar = findViewById(R.id.progress_circular);
+        mErrorMessage = findViewById(R.id.error_message);
 
         String url = "";
         mToolbarText.setText("Choose a Subject");
@@ -69,6 +72,7 @@ public class AnotherGenericActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                mErrorMessage.setVisibility(View.VISIBLE);
                 Log.e(LOG_TAG, "" + error.getMessage());
             }
         });
