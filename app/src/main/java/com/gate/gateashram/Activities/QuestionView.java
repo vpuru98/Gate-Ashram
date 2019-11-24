@@ -1,6 +1,7 @@
 package com.gate.gateashram.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -8,7 +9,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -28,6 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class QuestionView extends AppCompatActivity {
@@ -42,6 +46,12 @@ public class QuestionView extends AppCompatActivity {
     private ListView mListView;
     private ArrayList<QuestionModel> mQuestions;
     private OptionsAdapter mAdapter;
+    private CardView mNext;
+    private JSONArray mResponse;
+    private HashSet<Integer> mChecked;
+    private CardView mPrevious;
+    private ProgressBar mProgress;
+    private LinearLayout mLinearLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,145 +63,192 @@ public class QuestionView extends AppCompatActivity {
         mGateYear = findViewById(R.id.gate_year);
         mQuestionImage = findViewById(R.id.img);
         mListView = findViewById(R.id.list);
+        mNext = findViewById(R.id.next);
+        mPrevious = findViewById(R.id.previous);
         mQuestions = new ArrayList<>();
+        mResponse = new JSONArray();
+        mChecked = new HashSet<>();
+        mProgress = findViewById(R.id.progress_circular);
+        mLinearLayout = findViewById(R.id.ll);
+
+        if (mInd == 0)
+            mPrevious.setVisibility(View.GONE);
 
         mToolbarText.setText("Question " + (mInd + 1));
         int code = getIntent().getIntExtra("Code", 1);
         if (code == 1) {
             //do something
         } else {
-            String url = MainActivity.mUrl + "/" + getIntent().getStringExtra("Value") + "/practice";
-            Log.e(LOG_TAG, url);
+            performNetworkRequest();
+        }
 
-            RequestQueue queue = Volley.newRequestQueue(this);
+        mNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mNext.setVisibility(View.VISIBLE);
+                mPrevious.setVisibility(View.VISIBLE);
+                mInd++;
+                mToolbarText.setText("Question " + (mInd + 1));
+                if (mInd == mResponse.length() - 1)
+                    mNext.setVisibility(View.GONE);
+                extractResponse(mResponse);
+            }
+        });
 
-            JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
-                @Override
-                public void onResponse(JSONArray response) {
-                    for (int i = 0; i < response.length(); i++) {
-                        try {
-                            QuestionModel questionModel = new QuestionModel(null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null,
-                                    null);
-                            JSONObject jsonObject = response.getJSONObject(i);
-                            ArrayList<ListModelClass> options = new ArrayList<>();
-                            try {
-                                options.add(new ListModelClass("A:\t" + jsonObject.getString("Option_A")));
-                            } catch (Exception e) {
-                                options.add(new ListModelClass(null));
-                            }
-                            try {
-                                options.add(new ListModelClass("B:\t" + jsonObject.getString("Option_B")));
-                            } catch (Exception e) {
-                                options.add(new ListModelClass(null));
-                            }
-                            try {
-                                options.add(new ListModelClass("C:\t" + jsonObject.getString("Option_C")));
-                            } catch (Exception e) {
-                                options.add(new ListModelClass(null));
-                            }
-                            try {
-                                options.add(new ListModelClass("D:\t" + jsonObject.getString("Option_D")));
-                            } catch (Exception e) {
-                                options.add(new ListModelClass(null));
-                            }
-                            questionModel.setmOptions(options);
-                            try {
-                                questionModel.setmQuestion(jsonObject.getString("Question"));
-                            } catch (Exception e) {
-                                Log.e(LOG_TAG, e.getLocalizedMessage());
-                            }
-                            try {
-                                questionModel.setmYear(jsonObject.getString("Gate_Year"));
-                            } catch (Exception e) {
-                                Log.e(LOG_TAG, e.getLocalizedMessage());
-                            }
+        mPrevious.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mNext.setVisibility(View.VISIBLE);
+                mPrevious.setVisibility(View.VISIBLE);
+                mInd--;
+                mToolbarText.setText("Question " + (mInd + 1));
+                if (mInd == 0)
+                    mPrevious.setVisibility(View.GONE);
+                extractResponse(mResponse);
+            }
+        });
 
-                            try {
-                                questionModel.setmAnswer(jsonObject.getString("Answer"));
-                            } catch (Exception e) {
-                                Log.e(LOG_TAG, e.getLocalizedMessage());
-                            }
+    }
 
-                            try {
-                                questionModel.setmTopic(jsonObject.getString("Topic"));
-                            } catch (Exception e) {
-                                Log.e(LOG_TAG, e.getLocalizedMessage());
-                            }
+    void performNetworkRequest() {
+        String url = MainActivity.mUrl + "/" + getIntent().getStringExtra("Value") + "/practice";
 
-                            try {
-                                questionModel.setmMarks(jsonObject.getString("Marks"));
-                            } catch (Exception e) {
-                                Log.e(LOG_TAG, e.getLocalizedMessage());
-                            }
+        RequestQueue queue = Volley.newRequestQueue(this);
 
-                            try {
-                                questionModel.setmExplanation(jsonObject.getString("Explanation"));
-                            } catch (Exception e) {
-                                Log.e(LOG_TAG, e.getLocalizedMessage());
-                            }
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                mResponse = response;
+                int i = mInd;
+                extractResponse(mResponse);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(LOG_TAG, "error" + error.getMessage());
+            }
+        });
+        queue.add(jsonArrayRequest);
+    }
 
-                            try {
-                                questionModel.setmImageUrl(jsonObject.getString("Img"));
-                            } catch (Exception e) {
-                                Log.e(LOG_TAG, e.getLocalizedMessage());
-                            }
+    void extractResponse(JSONArray response) {
+        int i = mInd;
+        mProgress.setVisibility(View.GONE);
+        mLinearLayout.setVisibility(View.VISIBLE);
+        try {
+            QuestionModel questionModel = new QuestionModel(null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null);
+            if (!mChecked.contains(mInd)) {
+                JSONObject jsonObject = response.getJSONObject(i);
+                ArrayList<ListModelClass> options = new ArrayList<>();
+                try {
+                    options.add(new ListModelClass("A:\t" + jsonObject.getString("Option_A")));
+                } catch (Exception e) {
+                    options.add(new ListModelClass(null));
+                }
+                try {
+                    options.add(new ListModelClass("B:\t" + jsonObject.getString("Option_B")));
+                } catch (Exception e) {
+                    options.add(new ListModelClass(null));
+                }
+                try {
+                    options.add(new ListModelClass("C:\t" + jsonObject.getString("Option_C")));
+                } catch (Exception e) {
+                    options.add(new ListModelClass(null));
+                }
+                try {
+                    options.add(new ListModelClass("D:\t" + jsonObject.getString("Option_D")));
+                } catch (Exception e) {
+                    options.add(new ListModelClass(null));
+                }
+                questionModel.setmOptions(options);
+                try {
+                    questionModel.setmQuestion(jsonObject.getString("Question"));
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getLocalizedMessage());
+                }
+                try {
+                    questionModel.setmYear(jsonObject.getString("Gate_Year"));
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getLocalizedMessage());
+                }
 
-                            try {
-                                questionModel.setmId(jsonObject.getString("_id"));
-                            } catch (Exception e) {
-                                Log.e(LOG_TAG, e.getLocalizedMessage());
-                            }
+                try {
+                    questionModel.setmAnswer(jsonObject.getString("Answer"));
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getLocalizedMessage());
+                }
 
-                            mQuestions.add(questionModel);
+                try {
+                    questionModel.setmTopic(jsonObject.getString("Topic"));
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getLocalizedMessage());
+                }
 
-                            if (mQuestions.size() > mInd) {
-                                mQuestionView.setText(mQuestions.get(mInd).getmQuestion());
-                                mGateYear.setText(mQuestions.get(mInd).getmYear());
-                                mTopicTags.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        mTopicTags.setClickable(false);
-                                        mTopicTags.setText(mQuestions.get(mInd).getmTopic());
-                                    }
-                                });
-                                mAdapter = new OptionsAdapter(getApplicationContext(), mQuestions.get(mInd).getmOptions());
-                                mAdapter.notifyDataSetChanged();
-                                mListView.setAdapter(mAdapter);
+                try {
+                    questionModel.setmMarks(jsonObject.getString("Marks"));
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getLocalizedMessage());
+                }
 
-                                mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                    @Override
-                                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                                        int correctAnswer = (int) ((mQuestions.get(mInd).getmAnswer().charAt(0))) - 65;
-                                        Log.e(LOG_TAG, correctAnswer+"");
-                                        if (correctAnswer == i)
-                                            view.setBackgroundColor(Color.parseColor("#32CD32"));
-                                        else {
-                                            view.setBackgroundColor(Color.parseColor("#FF9494"));
-                                            //findViewById((int)adapterView.getItemIdAtPosition(correctAnswer)).setBackgroundColor(Color.parseColor("#32CD32"));
-                                        }
-                                    }
-                                });
-                            }
-                        } catch (Exception e) {
-                            Log.e(LOG_TAG, "" + e.getLocalizedMessage());
+                try {
+                    questionModel.setmExplanation(jsonObject.getString("Explanation"));
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getLocalizedMessage());
+                }
+
+                try {
+                    questionModel.setmImageUrl(jsonObject.getString("Img"));
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getLocalizedMessage());
+                }
+
+                try {
+                    questionModel.setmId(jsonObject.getString("_id"));
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getLocalizedMessage());
+                }
+                mQuestions.add(questionModel);
+                mChecked.add(mInd);
+            }
+
+            if (mQuestions.size() > mInd) {
+                mQuestionView.setText(mQuestions.get(mInd).getmQuestion());
+                mGateYear.setText(mQuestions.get(mInd).getmYear());
+                mTopicTags.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mTopicTags.setClickable(false);
+                        mTopicTags.setText(mQuestions.get(mInd).getmTopic());
+                    }
+                });
+                mAdapter = new OptionsAdapter(getApplicationContext(), mQuestions.get(mInd).getmOptions());
+                mAdapter.notifyDataSetChanged();
+                mListView.setAdapter(mAdapter);
+
+                mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        int correctAnswer = (int) ((mQuestions.get(mInd).getmAnswer().charAt(0))) - 65;
+                        Log.e(LOG_TAG, correctAnswer + "");
+                        if (correctAnswer == i)
+                            view.setBackgroundColor(Color.parseColor("#32CD32"));
+                        else {
+                            view.setBackgroundColor(Color.parseColor("#FF9494"));
+                            //findViewById((int)adapterView.getItemIdAtPosition(correctAnswer)).setBackgroundColor(Color.parseColor("#32CD32"));
                         }
                     }
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e(LOG_TAG, "" + error.getMessage());
-                }
-            });
-
-            queue.add(jsonArrayRequest);
+                });
+            }
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "" + e.getLocalizedMessage());
         }
     }
 }
