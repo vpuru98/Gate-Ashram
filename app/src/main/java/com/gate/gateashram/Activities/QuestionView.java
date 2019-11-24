@@ -83,6 +83,7 @@ public class QuestionView extends AppCompatActivity {
             //do something
         } else {
             performNetworkRequest();
+
         }
 
         mNext.setOnClickListener(new View.OnClickListener() {
@@ -146,6 +147,10 @@ public class QuestionView extends AppCompatActivity {
 
     void extractResponse(JSONArray response) {
         int i = mInd;
+        if (mInd == 0)
+            mPrevious.setVisibility(View.GONE);
+        if (mInd == mResponse.length() - 1)
+            mNext.setVisibility(View.GONE);
         mProgress.setVisibility(View.GONE);
         mLinearLayout.setVisibility(View.VISIBLE);
         try {
