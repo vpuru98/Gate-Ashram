@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_check_black_24dp"
+        android:scaleType="centerCrop"
+        android:layout_centerVertical="true"
+        android:id="@+id/ques_attempted"
+        android:alpha="0.85"
+        android:layout_marginLeft="12dp"
+        android:visibility="visible"/>
+
+    <TextView android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:fontFamily="@font/opensans"
+        android:textStyle="bold"
+        android:layout_centerVertical="true"
+        android:textAlignment="gravity"
+        android:gravity="right"
+        android:paddingLeft="24dp"
+        android:paddingRight="18dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:id="@+id/ques_number"
+        android:layout_alignParentRight="true" />
+
+</RelativeLayout>

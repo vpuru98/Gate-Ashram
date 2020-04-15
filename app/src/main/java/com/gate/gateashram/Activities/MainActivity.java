@@ -32,6 +32,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Intent i = new Intent(this, QuizView.class);
+        i.putExtra("Value", "https://gateashram.herokuapp.com/test/CSE/2015");
+        startActivity(i);
+
         mSubjectWise = findViewById(R.id.subject_card);
         mYearWise = findViewById(R.id.year_card);
         mCustom = findViewById(R.id.custom_card);
