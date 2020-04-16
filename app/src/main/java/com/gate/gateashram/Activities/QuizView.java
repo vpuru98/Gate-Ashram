@@ -1,23 +1,37 @@
 package com.gate.gateashram.Activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.graphics.Rect;
+import android.graphics.pdf.PdfDocument;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -27,6 +41,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.gate.gateashram.Adapters.QuizItemAdapter;
 import com.gate.gateashram.Adapters.QuizSpinnerAdapter;
+import com.gate.gateashram.Helpers.Helper;
 import com.gate.gateashram.Interface.OnQuizStatusChange;
 import com.gate.gateashram.Models.ListModelClass;
 import com.gate.gateashram.Models.QuestionModel;
@@ -36,11 +51,16 @@ import com.gate.gateashram.R;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class QuizView extends AppCompatActivity implements OnQuizStatusChange {
-    
+
     private static String LOG_TAG = "QuizView";
+    private static int STORAGE_REQUEST_CODE = 1;
     private static int SECONDS_PER_QUESTION = 120;
 
     RelativeLayout mTestToolbar;
@@ -49,9 +69,11 @@ public class QuizView extends AppCompatActivity implements OnQuizStatusChange {
     Button mStartTestButton;
     ProgressBar mProgressBar;
     RelativeLayout mTestInterface;
+    LinearLayout mPdfView;
     TextView mSubmit;
     TextView mTimer;
     TextView mScore;
+    TextView mExport;
     Spinner mQuizSpinner;
     ListView mList;
     ArrayList<Integer> mQuizInfo;
@@ -83,9 +105,11 @@ public class QuizView extends AppCompatActivity implements OnQuizStatusChange {
         mStartTestButton = findViewById(R.id.start_test_button);
         mProgressBar = findViewById(R.id.load_quiz_progress_bar);
         mTestInterface = findViewById(R.id.test_interface);
+        mPdfView = findViewById(R.id.pdf_view);
         mSubmit = findViewById(R.id.submit_test);
         mTimer = findViewById(R.id.time_remaining);
         mScore = findViewById(R.id.score);
+        mExport = findViewById(R.id.export_button);
         mQuizSpinner = findViewById(R.id.question_spinner);
         mList = findViewById(R.id.questions_list);
 
@@ -390,6 +414,20 @@ public class QuizView extends AppCompatActivity implements OnQuizStatusChange {
             total_marks += Integer.parseInt(mQuizItems.get(i).getmMarks());
         }
         mScore.setText(marks + " / " + total_marks);
+
+        mExport.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onClick(View view) {
+                if(ContextCompat.checkSelfPermission(QuizView.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+                        PackageManager.PERMISSION_GRANTED){
+                    requestStoragePermissions(QuizView.this);
+                }
+                else{
+                    writeAnswerKeyToFile();
+                }
+            }
+        });
     }
 
     private static String getTime(int remSeconds){
@@ -406,6 +444,76 @@ public class QuizView extends AppCompatActivity implements OnQuizStatusChange {
             seconds = "0" + seconds;
         }
         return hours + ":" + minutes + ":" + seconds;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode == STORAGE_REQUEST_CODE) {
+            if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                    grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                writeAnswerKeyToFile();
+            }
+            else{
+                Toast.makeText(this, "Export Failed. Permission Denied..", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void writeAnswerKeyToFile() {
+        TextView answerContainer = mPdfView.findViewById(R.id.answers_container);
+        String answers = "";
+        for(int i = 0;i < mQuizItems.size();i ++){
+            answers += (i + 1) + ". (" + mQuizItems.get(i).getmAnswer().trim() + ")    ";
+        }
+        answerContainer.setText(answers);
+
+        PdfDocument document = new PdfDocument();
+        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(800, 1100,
+                1).create();
+        PdfDocument.Page page = document.startPage(pageInfo);
+        int measureWidth = View.MeasureSpec.makeMeasureSpec(page.getCanvas().getWidth(), View.MeasureSpec.EXACTLY);
+        int measureHeight = View.MeasureSpec.makeMeasureSpec(page.getCanvas().getHeight(), View.MeasureSpec.EXACTLY);
+        Log.d(LOG_TAG, "" + measureWidth + ", " + measureHeight);
+        mPdfView.measure(measureWidth, measureHeight);
+        mPdfView.layout(0, 0, page.getCanvas().getWidth(), page.getCanvas().getHeight());
+        mPdfView.draw(page.getCanvas());
+        document.finishPage(page);
+
+        File file1;
+        String directory = Environment.getExternalStorageDirectory().getPath() + "/GateAshram/";
+        file1 = new File(directory);
+        file1.mkdirs();
+        String file_path = directory + "answer_key.pdf";
+        File file2 = new File(file_path);
+        if(!file2.exists()){
+            try {
+                file2.createNewFile();
+            }
+            catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+        try{
+            document.writeTo(new FileOutputStream(file2));
+            Toast.makeText(this, "Answer Key exported to PDF at " + file_path, Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        document.close();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public static void requestStoragePermissions(Activity activity){
+        String[] permissions = {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        };
+        ActivityCompat.requestPermissions(
+                activity,
+                permissions,
+                STORAGE_REQUEST_CODE
+        );
     }
 
     @Override
