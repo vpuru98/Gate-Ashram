@@ -33,7 +33,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Intent i = new Intent(this, QuizView.class);
-        i.putExtra("Value", "https://gateashram.herokuapp.com/test/CSE/2015");
+        i.putExtra("Url", "https://gateashram.herokuapp.com/test/CSE/2015");
+        i.putExtra("Type", "Subject");
         startActivity(i);
 
         mSubjectWise = findViewById(R.id.subject_card);

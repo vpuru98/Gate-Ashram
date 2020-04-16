@@ -1,9 +1,13 @@
 package com.gate.gateashram.Activities;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -39,8 +43,6 @@ public class QuizView extends AppCompatActivity implements OnQuizStatusChange {
     private static String LOG_TAG = "QuizView";
     private static int SECONDS_PER_QUESTION = 120;
 
-    String mUrl;
-
     RelativeLayout mTestToolbar;
     RelativeLayout mEvaluationToolbar;
     RelativeLayout mErrorMessage;
@@ -52,23 +54,28 @@ public class QuizView extends AppCompatActivity implements OnQuizStatusChange {
     TextView mScore;
     Spinner mQuizSpinner;
     ListView mList;
-    ArrayList<QuizItem> mQuizItems;
     ArrayList<Integer> mQuizInfo;
     QuizItemAdapter mQuizItemAdapter;
     QuizSpinnerAdapter mQuizSpinnerAdapter;
     int mNumQuizItems;
-    int mTimeRemaining;
     int mTotalTime;
 
     Handler mTimerHandler;
     Runnable mTimerRunnable;
 
+    // Activity state variables
+    String mTestType;
+    String mUrl;
+    ArrayList<QuizItem> mQuizItems;
+    boolean mLoadTest;
+    boolean mStartTest;
+    boolean mEvaluateTest;
+    int mTimeRemaining;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz_view);
-        
-        mUrl = getIntent().getStringExtra("Value");
 
         mTestToolbar = findViewById(R.id.test_toolbar);
         mEvaluationToolbar = findViewById(R.id.evaluation_toolbar);
@@ -81,23 +88,78 @@ public class QuizView extends AppCompatActivity implements OnQuizStatusChange {
         mScore = findViewById(R.id.score);
         mQuizSpinner = findViewById(R.id.question_spinner);
         mList = findViewById(R.id.questions_list);
-        mQuizItems = new ArrayList<>();
-        
-        mStartTestButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                prepareTest();
-            }
-        });
-        mTestInterface.setVisibility(View.GONE);
-        mTestToolbar.setVisibility(View.GONE);
-        mEvaluationToolbar.setVisibility(View.GONE);
 
-        getQuizItems();
+        mTestInterface.setVisibility(View.GONE);
+        mStartTestButton.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.GONE);
+        mErrorMessage.setVisibility(View.GONE);
+
+        if(savedInstanceState == null){
+            mTestType = getIntent().getStringExtra("Type");
+            mUrl = getIntent().getStringExtra("Url");
+            mQuizItems = new ArrayList<>();
+            mLoadTest = true;
+            mStartTest = false;
+            mEvaluateTest = false;
+            mTimeRemaining = -1;
+        }
 
     }
 
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("mTestType", mTestType);
+        outState.putString("mUrl", mUrl);
+        outState.putParcelableArrayList("mQuizItems", mQuizItems);
+        outState.putBoolean("mLoadTest", mLoadTest);
+        outState.putBoolean("mStartTest", mStartTest);
+        outState.putBoolean("mEvaluteTest", mEvaluateTest);
+        outState.putInt("mTimeRemaining", mTimeRemaining);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        mTestType = savedInstanceState.getString("mTestType");
+        mUrl = savedInstanceState.getString("mUrl");
+        mQuizItems = savedInstanceState.getParcelableArrayList("mQuizItems");
+        mLoadTest = savedInstanceState.getBoolean("mLoadTest");
+        mStartTest = savedInstanceState.getBoolean("mStartTest");
+        mEvaluateTest = savedInstanceState.getBoolean("mEvaluateTest");
+        mTimeRemaining = savedInstanceState.getInt("mTimeRemaining");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(mLoadTest){
+            getQuizItems();
+        }
+        if(mStartTest){
+            prepareTest();
+        }
+        if(mEvaluateTest){
+            evauateTest();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        mTimerHandler.removeCallbacksAndMessages(null);
+        super.onPause();
+    }
+
     void getQuizItems(){
+        mProgressBar.setVisibility(View.VISIBLE);
+        mTestInterface.setVisibility(View.GONE);
+        mStartTestButton.setVisibility(View.GONE);
+        mErrorMessage.setVisibility(View.GONE);
+
+        mLoadTest = true;
+        mStartTest = false;
+        mEvaluateTest = false;
+
         String url = mUrl;
         RequestQueue queue = Volley.newRequestQueue(this);
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
@@ -107,6 +169,12 @@ public class QuizView extends AppCompatActivity implements OnQuizStatusChange {
                 parseResponse(response);
                 mProgressBar.setVisibility(View.GONE);
                 mStartTestButton.setVisibility(View.VISIBLE);
+                mStartTestButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        prepareTest();
+                    }
+                });
             }
         }, new Response.ErrorListener() {
             @Override
@@ -210,22 +278,43 @@ public class QuizView extends AppCompatActivity implements OnQuizStatusChange {
     }
 
     void prepareTest(){
+        mTestInterface.setVisibility(View.VISIBLE);
+        mStartTestButton.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.GONE);
+        mErrorMessage.setVisibility(View.GONE);
+
+        mLoadTest = false;
+        mStartTest = true;
+        mEvaluateTest = false;
+
         mNumQuizItems = mQuizItems.size();
         mTotalTime = mNumQuizItems * SECONDS_PER_QUESTION;
 
-        mStartTestButton.setVisibility(View.GONE);
-        mTestInterface.setVisibility(View.VISIBLE);
         mTestToolbar.setVisibility(View.VISIBLE);
         mEvaluationToolbar.setVisibility(View.GONE);
         mSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                evauateTest();
+                AlertDialog.Builder builder = new AlertDialog.Builder(QuizView.this);
+                builder.setMessage("Are you sure you want to submit?")
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            mQuizSpinnerAdapter = null;
+                            evauateTest();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    })
+                    .show();
             }
         });
 
         mQuizInfo = new ArrayList<>();
-        for(int i = 0;i < mNumQuizItems;i ++){
+        for (int i = 0; i < mNumQuizItems; i++) {
             mQuizInfo.add(((mQuizItems.get(i).getmResponse() == null) ? -(i + 1) : (i + 1)));
         }
         mQuizSpinnerAdapter = new QuizSpinnerAdapter(this, R.layout.spinner_item, R.id.ques_number, mQuizInfo);
@@ -238,20 +327,33 @@ public class QuizView extends AppCompatActivity implements OnQuizStatusChange {
 
             @Override
             public void onNothingSelected(AdapterView<?> mQuizItemAdapterView) {
-
             }
         });
 
-        mQuizItemAdapter = new QuizItemAdapter(this, 0, mQuizItems, "Test", this);
+        mQuizItemAdapter = new QuizItemAdapter(this, 0, mQuizItems, "Test",
+                mTestType, this);
         mList.setAdapter(mQuizItemAdapter);
 
-        mTimeRemaining = mTotalTime;
+        if(mTimeRemaining == -1){
+            if(mTestType.equals("Paper"))
+                mTimeRemaining = 180 * 60;
+            else
+                mTimeRemaining = mNumQuizItems * SECONDS_PER_QUESTION;
+        }
         mTimerHandler = new Handler();
         mTimerRunnable = new Runnable() {
             @Override
             public void run() {
                 if(mTimeRemaining == 0){
-                    evauateTest();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(QuizView.this);
+                    builder.setMessage("The test has ended")
+                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                evauateTest();
+                            }
+                        })
+                        .show();
                 }
                 else{
                     mTimeRemaining -= 1;
@@ -261,7 +363,33 @@ public class QuizView extends AppCompatActivity implements OnQuizStatusChange {
             }
         };
 
-        mTimerRunnable.run();
+        mTimerHandler.postDelayed(mTimerRunnable, 0);
+    }
+
+    void evauateTest(){
+        mTestInterface.setVisibility(View.VISIBLE);
+        mStartTestButton.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.GONE);
+        mErrorMessage.setVisibility(View.GONE);
+
+        mLoadTest = false;
+        mStartTest = false;
+        mEvaluateTest = true;
+
+        mTestToolbar.setVisibility(View.GONE);
+        mEvaluationToolbar.setVisibility(View.VISIBLE);
+
+        mQuizItemAdapter = new QuizItemAdapter(this, 0, mQuizItems, "Evaluate",
+                mTestType, null);
+        mList.setAdapter(mQuizItemAdapter);
+
+        int marks = 0, total_marks = 0;
+        for(int i = 0;i < mQuizItems.size();i ++){
+            if(mQuizItems.get(i).getmAnswer().equals(mQuizItems.get(i).getmResponse()))
+                marks += Integer.parseInt(mQuizItems.get(i).getmMarks());
+            total_marks += Integer.parseInt(mQuizItems.get(i).getmMarks());
+        }
+        mScore.setText(marks + " / " + total_marks);
     }
 
     private static String getTime(int remSeconds){
@@ -269,7 +397,7 @@ public class QuizView extends AppCompatActivity implements OnQuizStatusChange {
         if(hours.length() == 1){
             hours = "0" + hours;
         }
-        String minutes = (remSeconds % 60) / 60 + "";
+        String minutes = (remSeconds % 3600) / 60 + "";
         if(minutes.length() == 1){
             minutes = "0" + minutes;
         }
@@ -278,23 +406,6 @@ public class QuizView extends AppCompatActivity implements OnQuizStatusChange {
             seconds = "0" + seconds;
         }
         return hours + ":" + minutes + ":" + seconds;
-    }
-
-    void evauateTest(){
-        mTestToolbar.setVisibility(View.GONE);
-        mEvaluationToolbar.setVisibility(View.VISIBLE);
-
-        mNumQuizItems = mQuizItems.size();
-        mQuizItemAdapter = new QuizItemAdapter(this, 0, mQuizItems, "Evaluate", null);
-        mList.setAdapter(mQuizItemAdapter);
-
-        int marks = 0, total_marks = 0;
-        for(int i = 0;i < mNumQuizItems;i ++){
-            if(mQuizItems.get(i).getmAnswer().equals(mQuizItems.get(i).getmResponse()))
-                marks += Integer.parseInt(mQuizItems.get(i).getmMarks());
-            total_marks += Integer.parseInt(mQuizItems.get(i).getmMarks());
-        }
-        mScore.setText(marks + " / " + total_marks);
     }
 
     @Override

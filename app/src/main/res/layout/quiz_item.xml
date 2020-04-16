@@ -22,10 +22,10 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="270dp"
-        android:paddingTop="24dp"
-        android:paddingBottom="16dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="30dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="30dp"
         android:src="@color/colorPrimaryDark"
         android:scaleType="fitXY"
         android:id="@+id/image"/>
@@ -47,10 +47,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="4 marks"
+            android:text=" 4 marks"
             android:textSize="15sp"
             android:textStyle="italic"
-            android:layout_marginLeft="8dp"
             android:layout_gravity="bottom"
             android:id="@+id/marks"/>
 

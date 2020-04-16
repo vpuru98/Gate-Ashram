@@ -38,13 +38,15 @@ public class QuizItemAdapter extends ArrayAdapter<QuizItem> {
 
     private Context mContext;
     private String mMode;
+    private String mTestType;
     private OnQuizStatusChange mOnQuizStatusChange;
 
     public QuizItemAdapter(@NonNull Context context, int resource, @NonNull List<QuizItem> objects, String mode,
-                           OnQuizStatusChange onQuizStatusChange) {
+                           String testtype, OnQuizStatusChange onQuizStatusChange) {
         super(context, 0, objects);
         mContext = context;
         mMode = mode;
+        mTestType = testtype;
         mOnQuizStatusChange = onQuizStatusChange;
     }
 
@@ -107,8 +109,8 @@ public class QuizItemAdapter extends ArrayAdapter<QuizItem> {
         resetOptionClickListeners(option_a_layout, option_b_layout, option_c_layout, option_d_layout);
 
         question.setText("Q" + (position + 1) + ". " + item.getmQuestion());
-        year.setText("GATE-" + item.getmYear());
-        marks.setText(item.getmMarks() + " marks");
+        year.setText("GATE-" + item.getmYear() + ",");
+        marks.setText(" " + item.getmMarks() + " marks");
         topic_text.setText(item.getmTopic());
         explanation_text.setText(item.getmExplanation());
         option_a_text.setText("A. " + item.getmOptions().get(0));
@@ -123,7 +125,7 @@ public class QuizItemAdapter extends ArrayAdapter<QuizItem> {
                 @Override
                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable>
                         target, boolean isFirstResource) {
-                    image.setBackground(mContext.getResources().getDrawable(R.drawable.ic_error_black_24dp));
+                    image.setBackgroundResource(R.color.dark_gray);
                     return false;
                 }
 
@@ -137,6 +139,11 @@ public class QuizItemAdapter extends ArrayAdapter<QuizItem> {
         }
         else{
             image.setVisibility(View.GONE);
+        }
+
+        if(mTestType.equals("Paper")){
+            year.setVisibility(View.GONE);
+            marks.setText("(" + marks.getText().toString().trim() + ")");
         }
 
         if(mMode.equals("Evaluate")){

@@ -21,13 +21,11 @@
         android:textStyle="bold"
         android:fontFamily="@font/opensans"
         android:layout_centerInParent="true"
-        android:id="@+id/start_test_button"
-        android:visibility="gone"/>
+        android:id="@+id/start_test_button" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
         android:layout_centerInParent="true"
         android:id="@+id/error_message">
 
@@ -48,6 +46,7 @@
             android:text="Error Retrieving data !"
             android:textColor="@android:color/white"
             android:textSize="24sp" />
+
     </RelativeLayout>
 
     <RelativeLayout
@@ -60,118 +59,117 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimaryDark"
-            android:padding="16dp"
-            android:id="@+id/test_toolbar">
-
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:background="@color/colorPrimaryDark"
+                android:padding="16dp"
+                android:id="@+id/test_toolbar">
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Submit Test"
-                        android:id="@+id/submit_test"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/opensans"
-                        android:textSize="24sp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="02:37"
-                        android:id="@+id/time_remaining"
-                        android:textStyle="bold"
-                        android:textSize="20sp"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginRight="12dp"/>
-
-                </RelativeLayout>
-
-                <RelativeLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/time_remaining"
-                    android:layout_marginTop="8dp">
+                    android:orientation="vertical">
 
-                    <Spinner
-                        android:layout_width="112dp"
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Submit Test"
+                            android:id="@+id/submit_test"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/opensans"
+                            android:textSize="24sp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="02:37"
+                            android:id="@+id/time_remaining"
+                            android:textStyle="bold"
+                            android:textSize="20sp"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="12dp"/>
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:id="@+id/question_spinner"
-                        android:scrollbars="none"
-                        android:background="@color/colorPrimaryDark" />
+                        android:layout_below="@id/time_remaining"
+                        android:layout_marginTop="8dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Go To Question"
-                        android:textSize="17sp"
-                        android:textStyle="bold"
-                        android:layout_centerVertical="true"/>
+                        <Spinner
+                            android:layout_width="112dp"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/question_spinner"
+                            android:scrollbars="none"
+                            android:background="@color/colorPrimaryDark" />
 
-                </RelativeLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Go To Question"
+                            android:textSize="17sp"
+                            android:textStyle="bold"
+                            android:layout_centerVertical="true"/>
 
-            </LinearLayout>
+                    </RelativeLayout>
 
-        </RelativeLayout>
+                </LinearLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimaryDark"
-            android:padding="16dp"
-            android:id="@+id/evaluation_toolbar"
-            android:visibility="invisible">
+            </RelativeLayout>
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:background="@color/colorPrimaryDark"
+                android:padding="16dp"
+                android:id="@+id/evaluation_toolbar">
 
-                <RelativeLayout
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Your Score"
-                        android:id="@+id/question_number"
-                        android:textStyle="bold"
-                        android:fontFamily="@font/opensans"
-                        android:textSize="24sp"/>
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="235 / 285"
-                        android:id="@+id/score"
-                        android:textStyle="bold"
-                        android:textSize="20sp"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginRight="12dp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Your Score"
+                            android:id="@+id/question_number"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/opensans"
+                            android:textSize="24sp"/>
 
-                </RelativeLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="235 / 285"
+                            android:id="@+id/score"
+                            android:textStyle="bold"
+                            android:textSize="20sp"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="12dp"/>
 
-            </LinearLayout>
+                    </RelativeLayout>
 
-        </RelativeLayout>
+                </LinearLayout>
 
-        <ListView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/questions_list" />
+            </RelativeLayout>
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/questions_list" />
 
         </LinearLayout>
 
