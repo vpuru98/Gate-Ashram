@@ -21,7 +21,7 @@ import org.json.JSONException;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String mUrl = "http://192.168.43.102:3000";
+    public static final String mUrl = "https://gateashram.herokuapp.com";
     private final String LOG_TAG = "Main";
     private CardView mSubjectWise;
     private CardView mYearWise;
@@ -31,11 +31,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        Intent i = new Intent(this, QuizView.class);
-        i.putExtra("Url", "https://gateashram.herokuapp.com/test/CSE/2015");
-        i.putExtra("Type", "Subject");
-        startActivity(i);
 
         mSubjectWise = findViewById(R.id.subject_card);
         mYearWise = findViewById(R.id.year_card);
