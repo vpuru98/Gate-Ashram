@@ -1,7 +1,9 @@
 package com.gate.gateashram.Activities;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -58,7 +60,7 @@ public class AnotherGenericActivity extends AppCompatActivity {
 
         String url = "";
         mToolbarText.setText("Choose a Subject");
-        url = MainActivity.mUrl + "/" + getIntent().getStringExtra("Value") + "/subjects";
+        url = MainActivity.mUrl + "/subjects/" + getIntent().getStringExtra("Value");
 
         RequestQueue queue = Volley.newRequestQueue(this);
 
@@ -69,11 +71,11 @@ public class AnotherGenericActivity extends AppCompatActivity {
                     try {
                         mProgressBar.setVisibility(View.GONE);
                         mListView.setVisibility(View.VISIBLE);
-                        mListItems.add(new ExpandableListModel(response.getJSONObject(j).getString("subject"), MainActivity.mUrl + "/" + response.getJSONObject(j).getString("subject") + "/topics"));
+                        mListItems.add(new ExpandableListModel(response.getJSONObject(j).getString("subject"), MainActivity.mUrl + "/topics/" + response.getJSONObject(j).getString("subject")));
                         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
                         final String key = response.getJSONObject(j).getString("subject");
                         mTitles.add(key);
-                        String url = MainActivity.mUrl + "/" + response.getJSONObject(j).getString("subject") + "/topics";
+                        String url = MainActivity.mUrl + "/topics/" + response.getJSONObject(j).getString("subject");
                         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
                             @Override
                             public void onResponse(JSONArray response) {
@@ -137,17 +139,36 @@ public class AnotherGenericActivity extends AppCompatActivity {
         mListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v,
-                                        int groupPosition, int childPosition, long id) {
+                                        final int groupPosition, int childPosition, long id) {
                 String url = "";
                 if (mHashmap.get(mTitles.get(groupPosition)).get(childPosition).equalsIgnoreCase("all")) {
-                    url = MainActivity.mUrl + "/" + mTitles.get(groupPosition) + "/practice";
-                } else
-                    url = MainActivity.mUrl + "/CSE/subjects/" + mTitles.get(groupPosition) + "/" + mHashmap.get(mTitles.get(groupPosition)).get(childPosition) + "/practice";
-
-                Intent intent = new Intent(AnotherGenericActivity.this, QuestionView.class);
-                intent.putExtra("Value", url);
-                intent.putExtra("Code", 2);
-                startActivity(intent);
+                    url = MainActivity.mUrl + "/practice/" + mTitles.get(groupPosition);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(AnotherGenericActivity.this);
+                    builder.setMessage("Do you want to practice or take a test?");
+                    builder.setCancelable(true);
+                    final String finalUrl = url;
+                    builder.setPositiveButton("Take a test", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Intent intent = new Intent(AnotherGenericActivity.this, QuizView.class);
+                            intent.putExtra("Url", MainActivity.mUrl + "/test/" + mTitles.get(groupPosition));
+                            intent.putExtra("Type", "Practice");
+                            startActivity(intent);
+                        }
+                    })
+                    .setNegativeButton("Practice", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Intent intent = new Intent(AnotherGenericActivity.this, QuestionView.class);
+                            intent.putExtra("Value", finalUrl);
+                            intent.putExtra("Code", 2);
+                            startActivity(intent);
+                        }
+                    }).show();
+                }
+                else{
+                    Toast.makeText(AnotherGenericActivity.this, "Topic-Wise practice not yet available", Toast.LENGTH_SHORT).show();
+                }
                 return false;
             }
         });

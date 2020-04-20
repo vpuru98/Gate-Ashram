@@ -12,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gate.gateashram.Adapters.GenericAdapter;
 import com.gate.gateashram.Models.ListModelClass;
@@ -72,10 +73,11 @@ public class GenericActivity extends AppCompatActivity {
                     }).setNegativeButton("Practice", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            Intent intent = new Intent(GenericActivity.this, QuestionView.class);
-                            intent.putExtra("Code", 1);
-                            intent.putExtra("Value", MainActivity.mUrl + "/practice/CSE/" + mListItems.get(t).getmText());
-                            startActivity(intent);
+                            Toast.makeText(GenericActivity.this, "Year-Wise Practice not yet available", Toast.LENGTH_SHORT).show();
+//                            Intent intent = new Intent(GenericActivity.this, QuestionView.class);
+//                            intent.putExtra("Code", 1);
+//                            intent.putExtra("Value", MainActivity.mUrl + "/practice/CSE/" + mListItems.get(t).getmText());
+//                            startActivity(intent);
                         }
                     }).show();
                 }
