@@ -170,7 +170,9 @@ public class QuizView extends AppCompatActivity implements OnQuizStatusChange {
 
     @Override
     protected void onPause() {
-        mTimerHandler.removeCallbacksAndMessages(null);
+        if (mTimerHandler != null) {
+            mTimerHandler.removeCallbacksAndMessages(null);
+        }
         super.onPause();
     }
 
@@ -189,6 +191,7 @@ public class QuizView extends AppCompatActivity implements OnQuizStatusChange {
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
+                assert response.length() > 0;
                 Log.d(LOG_TAG, response.toString());
                 parseResponse(response);
                 mProgressBar.setVisibility(View.GONE);
@@ -203,7 +206,7 @@ public class QuizView extends AppCompatActivity implements OnQuizStatusChange {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e(LOG_TAG, error.getLocalizedMessage());
+                Log.e(LOG_TAG, "Fetch Failed!");
                 mProgressBar.setVisibility(View.GONE);
                 mErrorMessage.setVisibility(View.VISIBLE);
             }
