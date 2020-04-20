@@ -73,11 +73,10 @@ public class GenericActivity extends AppCompatActivity {
                     }).setNegativeButton("Practice", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            Toast.makeText(GenericActivity.this, "Year-Wise Practice not yet available", Toast.LENGTH_SHORT).show();
-//                            Intent intent = new Intent(GenericActivity.this, QuestionView.class);
-//                            intent.putExtra("Code", 1);
-//                            intent.putExtra("Value", MainActivity.mUrl + "/practice/CSE/" + mListItems.get(t).getmText());
-//                            startActivity(intent);
+                            Intent intent = new Intent(GenericActivity.this, QuestionView.class);
+                            intent.putExtra("Code", 1);
+                            intent.putExtra("Value", MainActivity.mUrl + "/practice/CSE/" + mListItems.get(t).getmText());
+                            startActivity(intent);
                         }
                     }).show();
                 }

@@ -82,9 +82,8 @@ public class QuestionView extends AppCompatActivity {
         mToolbarText.setText("Question " + (mInd + 1));
         int code = getIntent().getIntExtra("Code", 1);
         if (code == 1) {
-            //do something
-        } else {
             performNetworkRequest();
+        } else{
         }
 
         mNext.setOnClickListener(new View.OnClickListener() {
